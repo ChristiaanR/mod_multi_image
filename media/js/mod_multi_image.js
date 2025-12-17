@@ -10,11 +10,10 @@
 	'use strict';
 
 	/**
-	 * Update visibility of images based on viewport width
+	 * Update visibility of images based on viewport width and breakpoints
 	 * @param {string} moduleId - The module container ID
 	 * @param {Object} config - Configuration with breakpoint values
 	 */
-	/*
 	function updateVisibility(moduleId, config) {
 		var width = window.innerWidth;
 		var module = document.getElementById(moduleId);
@@ -26,57 +25,79 @@
 		var items = module.querySelectorAll('.multi-image-item');
 
 		items.forEach(function (item, index) {
-			var show = item.getAttribute('data-show');
+			var shouldDisplay = false;
 
+			// First image always visible
 			if (index === 0) {
-				// First image always visible
-				item.style.display = '';
-			} else if (show === 'double' && width >= config.breakpointDouble) {
-				item.style.display = '';
-			} else if (show === 'triple' && width >= config.breakpointTriple) {
-				item.style.display = '';
-			} else if (index > 0) {
-				item.style.display = 'none';
+				shouldDisplay = true;
 			}
+			// Second image visible at breakpointDouble
+			else if (index === 1 && width >= config.breakpointDouble) {
+				shouldDisplay = true;
+			}
+			// Third image visible at breakpointTriple
+			else if (index === 2 && width >= config.breakpointTriple) {
+				shouldDisplay = true;
+			}
+
+			item.setAttribute('data-show', shouldDisplay ? 'true' : 'false');
 		});
 	}
-*/
-	function updateVisibility(moduleId, config) {
-		var width = window.innerWidth;
+
+	/**
+	 * Initialize lazy loading for background images using Intersection Observer
+	 * @param {string} moduleId - The module container ID
+	 * @param {Object} config - Configuration object
+	 */
+	function initLazyLoading(moduleId, config) {
 		var module = document.getElementById(moduleId);
 
-		if (!module) {
+		if (!module || !window.IntersectionObserver) {
+			// Fallback for browsers without IntersectionObserver support
 			return;
 		}
 
 		var items = module.querySelectorAll('.multi-image-item');
+		var observerOptions = {
+			root: null,
+			rootMargin: '50px', // Start loading 50px before entering viewport
+			threshold: 0,
+		};
 
-		items.forEach(function (item, index) {
-			// Haal de waarde op van het 'data-show' attribuut.
-			var showValue = item.getAttribute('data-show');
+		var imageObserver = new IntersectionObserver(function (entries) {
+			entries.forEach(function (entry) {
+				if (entry.isIntersecting) {
+					var item = entry.target;
+					var bgImage = item.getAttribute('data-bg-image');
 
-			// Converteer de stringwaarde ('true' of 'false') naar een boolean.
-			// Dit is de nieuwe boolean die bepaalt of het item getoond moet worden
-			// op basis van de oude 'double'/'triple' logica.
-			// We gaan ervan uit dat je deze al hebt ingesteld in de HTML.
-			var shouldShow = showValue === 'true';
+					// If data-bg-image exists, apply it to the background
+					if (bgImage) {
+						item.style.backgroundImage = "url('" + bgImage + "')";
+						item.removeAttribute('data-bg-image');
+					}
 
-			// 1. Eerste afbeelding (index 0) altijd zichtbaar.
-			if (index === 0) {
-				item.style.display = '';
+					// Stop observing this item
+					imageObserver.unobserve(item);
+				}
+			});
+		}, observerOptions);
 
-				// 2. Gebruik de nieuwe boolean 'shouldShow'.
-				//    Als shouldShow 'true' is, toon het item.
-			} else if (shouldShow) {
-				item.style.display = '';
-
-				// 3. Voor alle andere items (index > 0) die NIET getoond moeten worden (shouldShow is 'false').
-			} else if (index > 0) {
-				item.style.display = 'none';
+		items.forEach(function (item) {
+			// Store the background image in data attribute
+			var bgImage = item.style.backgroundImage;
+			if (bgImage) {
+				// Extract URL from background-image property
+				var urlMatch = bgImage.match(/url\(['"]?([^'"]+)['"]?\)/);
+				if (urlMatch && urlMatch[1]) {
+					item.setAttribute('data-bg-image', urlMatch[1]);
+					// Clear the background image initially
+					item.style.backgroundImage = 'none';
+					// Start observing
+					imageObserver.observe(item);
+				}
 			}
 		});
 	}
-	/* -----------------------------------*/
 
 	/**
 	 * Initialize all multi-image modules on the page
@@ -89,6 +110,11 @@
 		// Initialize each module with its configuration
 		Object.keys(window.modMultiImageConfig).forEach(function (moduleId) {
 			var config = window.modMultiImageConfig[moduleId];
+
+			// Initialize lazy loading if enabled
+			if (config.lazyLoading) {
+				initLazyLoading(moduleId, config);
+			}
 
 			// Update visibility on load
 			updateVisibility(moduleId, config);

@@ -7,10 +7,10 @@
     <license>GNU General Public License version 2 or later</license>
     <authorEmail>web@christiaanruiter.nl</authorEmail>
     <authorUrl>https://christiaanruiter.nl</authorUrl>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <description>MOD_MULTI_IMAGE_XML_DESCRIPTION</description>
     
-    <namespace path="src">ChristiaanRuiter\Module\MultiImage</namespace>
+    <namespace path="src">CRu\Module\MultiImage\Site</namespace>
     
     <files>
         <filename module="mod_multi_image">mod_multi_image.php</filename>
@@ -35,26 +35,10 @@
                 />
                 
                 <field
-                    name="link1"
-                    type="url"
-                    label="MOD_MULTI_IMAGE_LINK1_LABEL"
-                    description="MOD_MULTI_IMAGE_LINK1_DESC"
-                    default=""
-                />
-                
-                <field
                     name="image2"
                     type="media"
                     label="MOD_MULTI_IMAGE_IMAGE2_LABEL"
                     description="MOD_MULTI_IMAGE_IMAGE2_DESC"
-                />
-                
-                <field
-                    name="link2"
-                    type="url"
-                    label="MOD_MULTI_IMAGE_LINK2_LABEL"
-                    description="MOD_MULTI_IMAGE_LINK2_DESC"
-                    default=""
                 />
                 
                 <field
@@ -63,45 +47,11 @@
                     label="MOD_MULTI_IMAGE_IMAGE3_LABEL"
                     description="MOD_MULTI_IMAGE_IMAGE3_DESC"
                 />
-                
+            </fieldset>
+            
+            <fieldset name="advanced">
                 <field
-                    name="link3"
-                    type="url"
-                    label="MOD_MULTI_IMAGE_LINK3_LABEL"
-                    description="MOD_MULTI_IMAGE_LINK3_DESC"
-                    default=""
-                />
-                
-                <field
-                    name="width"
-                    type="text"
-                    label="MOD_MULTI_IMAGE_WIDTH_LABEL"
-                    description="MOD_MULTI_IMAGE_WIDTH_DESC"
-                    default=""
-                />
-                
-                <field
-                    name="height"
-                    type="text"
-                    label="MOD_MULTI_IMAGE_HEIGHT_LABEL"
-                    description="MOD_MULTI_IMAGE_HEIGHT_DESC"
-                    default=""
-                />
-                
-                <field
-                    name="target"
-                    type="list"
-                    label="MOD_MULTI_IMAGE_TARGET_LABEL"
-                    description="MOD_MULTI_IMAGE_TARGET_DESC"
-                    default="0"
-                >
-                    <option value="0">MOD_MULTI_IMAGE_TARGET_SAME</option>
-                    <option value="1">MOD_MULTI_IMAGE_TARGET_NEW</option>
-                    <option value="2">MOD_MULTI_IMAGE_TARGET_POPUP</option>
-                </field>
-                
-                <field
-                    name="layout"
+                    name="image_layout"
                     type="list"
                     label="MOD_MULTI_IMAGE_LAYOUT_LABEL"
                     description="MOD_MULTI_IMAGE_LAYOUT_DESC"
@@ -127,15 +77,25 @@
                     description="MOD_MULTI_IMAGE_BREAKPOINT_TRIPLE_DESC"
                     default="1024"
                 />
-            </fieldset>
-            
-            <fieldset name="advanced">
+                
                 <field
-                    name="layout"
-                    type="modulelayout"
-                    label="JFIELD_ALT_LAYOUT_LABEL"
-                    description="JFIELD_ALT_MODULE_LAYOUT_DESC"
-                />
+                    name="lazy_loading"
+                    type="list"
+                    label="MOD_MULTI_IMAGE_LAZY_LOADING_LABEL"
+                    description="MOD_MULTI_IMAGE_LAZY_LOADING_DESC"
+                    default="0"
+                >
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                
+				<field
+					name="layout"
+					type="modulelayout"
+					label="JFIELD_ALT_LAYOUT_LABEL"
+					class="form-select"
+					validate="moduleLayout"
+				/>
                 
                 <field
                     name="moduleclass_sfx"

@@ -11,12 +11,16 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Helper\ModuleHelper;
-use ChristiaanRuiter\Module\MultiImage\Site\Helper\MultiImageHelper;
+use CRu\Module\MultiImage\Site\Helper\MultiImageHelper;
 
 // Get module parameters
 $images = MultiImageHelper::getImages($params);
 
 // Only display if at least one image is selected
 if (!empty($images)) {
+  // Extract local variables for the template
+  // Template also has access to $params, $module, $app from Joomla context
+  extract(compact('images'));
+
   require ModuleHelper::getLayoutPath('mod_multi_image', $params->get('layout', 'default'));
 }

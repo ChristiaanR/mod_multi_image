@@ -8,7 +8,7 @@
  * @license     GNU General Public License version 2 or later
  */
 
-namespace ChristiaanRuiter\Module\MultiImage\Site\Helper;
+namespace CRu\Module\MultiImage\Site\Helper;
 
 defined('_JEXEC') or die;
 
@@ -43,9 +43,6 @@ class MultiImageHelper
       if (!empty($image)) {
         $imageData = [
           'src'    => self::getImagePath($image),
-          'link'   => $params->get('link' . $i, ''),
-          'width'  => $params->get('width', ''),
-          'height' => $params->get('height', ''),
         ];
 
         $images[] = $imageData;
@@ -56,46 +53,35 @@ class MultiImageHelper
   }
 
   /**
-   * Get the full image path
+   * Get the image path relative to root
    *
-   * @param   string  $image  Image path
+   * @param   string  $image  Image path (may contain Joomla metadata)
    *
-   * @return  string  Full image URL
+   * @return  string  Relative image URL
    *
    * @since   1.0.0
    */
   private static function getImagePath($image)
   {
+    // Remove quotes if present
+    $image = trim($image, '\'"');
+
+    // Extract the relative path before the Joomla metadata marker (#joomlaImage://)
+    if (strpos($image, '#') !== false) {
+      $image = substr($image, 0, strpos($image, '#'));
+    }
+
     // If it's already a full URL, return it
     if (strpos($image, 'http://') === 0 || strpos($image, 'https://') === 0) {
       return $image;
     }
 
-    // Remove leading slash if present
-    $image = ltrim($image, '/');
-
-    // Return the full URL
-    return Uri::root() . $image;
-  }
-
-  /**
-   * Get link target attribute
-   *
-   * @param   int  $target  Target parameter value
-   *
-   * @return  string  Target attribute
-   *
-   * @since   1.0.0
-   */
-  public static function getTarget($target)
-  {
-    switch ($target) {
-      case 1:
-        return '_blank';
-      case 2:
-        return 'modal';
-      default:
-        return '';
+    // Ensure path starts with /
+    if (strpos($image, '/') !== 0) {
+      $image = '/' . $image;
     }
+
+    // Return the relative URL
+    return $image;
   }
 }

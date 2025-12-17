@@ -11,15 +11,12 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper;
-use ChristiaanRuiter\Module\MultiImage\Site\Helper\MultiImageHelper;
+use CRu\Module\MultiImage\Site\Helper\MultiImageHelper;
 
-$target = MultiImageHelper::getTarget($params->get('target', 0));
-$layout = $params->get('layout', 'horizontal');
-$width = $params->get('width', '');
-$height = $params->get('height', '200');
+$layout = $params->get('image_layout', 'horizontal');
 $breakpointDouble = $params->get('breakpoint_double', '768');
 $breakpointTriple = $params->get('breakpoint_triple', '1024');
+$lazyLoading = (bool) $params->get('lazy_loading', 0);
 $moduleId = 'mod-multi-image-' . $module->id;
 
 // Load CSS and JS from media folder
@@ -33,46 +30,26 @@ $wa->addInlineScript('
     window.modMultiImageConfig = window.modMultiImageConfig || {};
     window.modMultiImageConfig["' . $moduleId . '"] = {
         breakpointDouble: ' . (int)$breakpointDouble . ',
-        breakpointTriple: ' . (int)$breakpointTriple . '
+        breakpointTriple: ' . (int)$breakpointTriple . ',
+        lazyLoading: ' . ($lazyLoading ? 'true' : 'false') . '
     };
 ', [], ['defer' => true]);
 ?>
 
 <div id="<?php echo $moduleId; ?>"
-  class="mod-multi-image mod-multi-image-<?php echo $layout; ?> <?php echo $params->get('moduleclass_sfx'); ?>">
+  class="mod-multi-image mod_multi_image_<?php echo $layout; ?> <?php echo $params->get('moduleclass_sfx'); ?>"
+  aria-hidden="true">
   <?php foreach ($images as $index => $image) : ?>
-  <?php
+    <?php
     // Build inline style for background image
-    $style = 'background-image: url(\'' . htmlspecialchars($image['src'], ENT_QUOTES, 'UTF-8') . '\');';
-    /* $style = 'background-image: url("' 
-       . Uri::root(true) . $image->url 
-       . '");';*/
+    $style = 'background: url(\'' . htmlspecialchars($image['src'], ENT_QUOTES, 'UTF-8') . '\') no-repeat;';
 
-    // if (!empty($width)) {
-    //   $style .= ' width: ' . htmlspecialchars($width) . 'px;';
-    // }
-
-    // if (!empty($height)) {
-    //   $style .= ' height: ' . htmlspecialchars($height) . 'px;';
-    // }
-
-    // Determine data-show attribute
-    $dataShow = '';
-    if ($index === 1) {
-      $dataShow = 'true';
-    } elseif ($index === 2) {
-      $dataShow = 'false';
-    }
+    // Initialize data-show: first image always true, others false initially
+    // JavaScript will update based on viewport width and breakpoints
+    $dataShow = $index === 0 ? 'true' : 'false';
     ?>
 
-  <div class="multi-image-item" style="<?php echo $style; ?>"
-    <?php if ($dataShow) : ?>data-show="<?php echo $dataShow; ?>" <?php endif; ?>>
-    <?php if (!empty($image['link'])) : ?>
-    <a href="<?php echo htmlspecialchars($image['link']); ?>" class="multi-image-link"
-      <?php if ($target === '_blank') : ?> target="_blank" rel="noopener noreferrer"
-      <?php elseif ($target === 'modal') : ?> data-bs-toggle="modal" data-bs-target="#imageModal" <?php endif; ?>>
-    </a>
-    <?php endif; ?>
-  </div>
+    <div class="multi-image-item" style="<?php echo $style; ?>" data-show="<?php echo $dataShow; ?>">
+    </div>
   <?php endforeach; ?>
 </div>

@@ -5,8 +5,12 @@
  * @copyright   Copyright (C) 2024
  * @license     GNU General Public License version 2 or later
  */
-.cru {
-	font-weight: 700;
+
+[data-show='false'] {
+	display: none;
+}
+[data-show='true'] {
+	display: block;
 }
 .mod-multi-image {
 	display: flex;
@@ -35,16 +39,7 @@
 	background-position: center;
 	background-repeat: no-repeat;
 	transition: opacity 0.3s ease;
-}
-
-.multi-image-item .multi-image-link {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	display: block;
-	z-index: 1;
+	aspect-ratio: 16 / 9;
 }
 
 /* Ensure proper sizing for grid layout */
